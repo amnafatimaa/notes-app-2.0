@@ -8,4 +8,3 @@ class Note(BaseModel):
 class NoteCreate(BaseModel):
     title: str
     content: str
-
