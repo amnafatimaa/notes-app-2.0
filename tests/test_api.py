@@ -2,11 +2,9 @@ import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import pytest
-from fastapi import FastAPI
 from starlette.testclient import TestClient
 from main import app  
 from database import Base, get_db, SessionLocal, NoteDB
-from models import Note, NoteCreate
 
 app.dependency_overrides[get_db] = get_db
 
