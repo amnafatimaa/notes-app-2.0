@@ -3,3 +3,6 @@ __pycache__
 venv/
 *.venv
 .env
+.database
+.pytest_cache/
+__pycache__/
