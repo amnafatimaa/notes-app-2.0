@@ -2,4 +2,7 @@ __pycache__
 *.pyc
 venv/
 *.venv
-notes.db
+.env
+.database
+.pytest_cache/
+__pycache__/
