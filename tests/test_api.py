@@ -3,16 +3,22 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 import pytest
 from starlette.testclient import TestClient
-from main import app  
-from database import Base, get_db, SessionLocal, NoteDB
+from main import app
+from database import get_db 
+from test_database import Base, get_test_db, TestSessionLocal, NoteDB
 
-app.dependency_overrides[get_db] = get_db
+app.dependency_overrides[get_db] = get_test_db
 
 @pytest.fixture(scope="function")
 def setup_teardown_db():
-    Base.metadata.create_all(bind=SessionLocal().bind)
+    Base.metadata.create_all(bind=TestSessionLocal().bind)
+
+    db = TestSessionLocal()
+    db.query(NoteDB).delete()
+    db.commit()
+    db.close()
     yield
-    db = SessionLocal()
+    db = TestSessionLocal()  
     db.query(NoteDB).delete()
     db.commit()
     db.close()
@@ -23,7 +29,7 @@ def client(setup_teardown_db):
         yield client
 
 def test_get_notes(client, setup_teardown_db):
-    db = SessionLocal()
+    db = TestSessionLocal()
     test_note = NoteDB(id="test-id-1", title="Test Title", content="Test Content")
     db.add(test_note)
     db.commit()
@@ -47,7 +53,7 @@ def test_create_note(client, setup_teardown_db):
     assert len(data["id"]) > 0
 
 def test_get_note(client, setup_teardown_db):
-    db = SessionLocal()
+    db = TestSessionLocal()
     test_note = NoteDB(id="test-id-2", title="Get Test", content="Get Content")
     db.add(test_note)
     db.commit()
@@ -61,7 +67,7 @@ def test_get_note(client, setup_teardown_db):
     assert data["content"] == "Get Content"
 
 def test_update_note(client, setup_teardown_db):
-    db = SessionLocal()
+    db = TestSessionLocal()
     test_note = NoteDB(id="test-id-3", title="Old Title", content="Old Content")
     db.add(test_note)
     db.commit()
@@ -76,7 +82,7 @@ def test_update_note(client, setup_teardown_db):
     assert data["content"] == "Updated Content"
 
 def test_delete_note(client, setup_teardown_db):
-    db = SessionLocal()
+    db = TestSessionLocal()
     test_note = NoteDB(id="test-id-4", title="Delete Test", content="Delete Content")
     db.add(test_note)
     db.commit()
